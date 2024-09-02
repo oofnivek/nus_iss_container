@@ -12,8 +12,6 @@ COPY .mvn .mvn
 RUN chmod +x mvnw
 RUN ./mvnw clean install
 
-RUN ls -R
-
 FROM openjdk:17
 # container to run the app
 
