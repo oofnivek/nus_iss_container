@@ -27,6 +27,9 @@ ENV PORT=5000
 ENV INSTANCE_NAME=kevinfoo
 ENV INSTANCE_HASH=oofnivek
 
-EXPOSE 5000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD curl -s localhost:${PORT}/healthz || exit 1
+
+EXPOSE ${PORT}
 
 CMD ["java", "-jar", "./dovbear-0.0.1-SNAPSHOT.jar"]
