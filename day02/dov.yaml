@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Unique key of the Deployment instance
+  name: dov-deploy
+  namespace: myns
+  labels:
+    app: dov
+    name: dov-deploy
+spec:
+  # 3 Pods should exist at all times.
+  replicas: 4
+  selector:
+    matchLabels:
+      app: myapp
+      dept: end
+      commit: abc123
+  template:
+    metadata:
+      name: mypod
+      namespace: myns
+      labels:
+        app: myapp
+        dept: end
+        commit: abc123
+    spec:
+      containers:
+      - name: mypod-dancing-bear
+        image: chukmunnlee/dov-bear:v5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        env:
+        - name: INSTANCE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INSTANCE_HASH
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['pod-template-hash']
