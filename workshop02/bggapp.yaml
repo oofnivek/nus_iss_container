@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bggapp-deploy
+  namespace: bggns
+  labels:
+    app: bgg
+    name: bggapp-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: bgg
+      name: bggapp-po
+  template:
+    metadata:
+      labels:
+        app: bgg
+        name: bggapp-po
+    spec:
+      containers:
+      - name: bgg-container
+        image: stackupiss/bgg-backend:v1
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: bgg-cm
+        - secretRef:
+            name: bgg-secret
+        ports:
+        - name: app-port
+          containerPort: 3000
+        # env:
+        # - name: BGG_DB_USER
+        #   value: root
+        # - name: BGG_DB_HOST
+        #   value: mydb-svc
+        # - name: BGG_DB_PASSWORD
+        #   value: changeit
+        
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: bggapp-svc
+  namespace: bggns
+  labels:
+    app: bgg
+    name: bggapp-svc
+spec:
+  # type: LoadBalancer
+  # type: NodePort
+  type: ClusterIP
+  selector: 
+    app: bgg
+    name: bggapp-po
+  ports: 
+  # when use with LoadBalancer
+  # - port: 80 
+  - port: 3000
+    targetPort: app-port
