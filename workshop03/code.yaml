@@ -54,7 +54,7 @@ spec:
         # - name: DEFAULT_WORKSPACE
         #   value: /config/workspace
         # - name: PROXY_DOMAIN
-        #   value: code-<IP>.nip.io
+        #   value: code.139.59.193.7.nip.io
 
 ---
 apiVersion: v1
