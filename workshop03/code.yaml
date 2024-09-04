@@ -73,3 +73,4 @@ spec:
   ports: 
   - port: 8443
     targetPort: 8443
+    
