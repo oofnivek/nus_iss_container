@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-deploy
+  namespace: codeserver
+  labels:
+    app: code
+    name: code-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: code
+      name: code-po
+  template:
+    metadata:
+      labels:
+        app: code
+        name: code-po
+    spec:
+      volumes:
+      - name: workspace-vol
+        persistentVolumeClaim:
+          claimName: code-pvc
+      containers:
+      - name: code-container
+        image: linuxserver/code-server:4.92.2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+        - name: workspace-vol
+          mountPath: /config/workspace
+        envFrom:
+        - configMapRef:
+            name: code-cm
+        - secretRef:
+            name: code-secret
+        # env:
+        # - name: TZ
+        #   value: Asia/Singapore
+        # - name: PASSWORD
+        #   value: password
+        # - name: SUDO_PASSWORD
+        #   value: password
+        # - name: DEFAULT_WORKSPACE
+        #   value: /config/workspace
+        # - name: PROXY_DOMAIN
+        #   value: code-<IP>.nip.io
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: code-svc
+  namespace: codeserver
+  labels:
+    app: code
+    name: code-svc
+spec:
+  type: ClusterIP
+  selector: 
+    app: code
+    name: code-po
+  ports: 
+  - port: 8443
+    targetPort: 8443
