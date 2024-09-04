@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Unique key of the Deployment instance
+  name: dov-deploy
+  namespace: dovns
+  labels:
+    app: dov
+    name: dov-deploy
+spec:
+  # 3 Pods should exist at all times.
+  replicas: 4
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      name: mypod
+      namespace: dovns
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: mypod-dancing-bear
+        image: chukmunnlee/dov-bear:v5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        env:
+        - name: INSTANCE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INSTANCE_HASH
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['pod-template-hash']
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: dov-svc
+  namespace: dovns
+  labels:
+    app: dov
+    name: dov-svc
+spec:
+  type: ClusterIP
+  selector: 
+    app: myapp
+  ports: 
+  - port: 3000
+    targetPort: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+  name: dov-ing
+  namespace: dovns
+  labels:
+    app: dov
+    name: dov-ing
+spec: 
+  ingressClassName: nginx
+  rules:
+  - host: dov.139.59.193.7.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dov-svc
+            port:
+              number: 3000
