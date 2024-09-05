@@ -79,8 +79,6 @@ spec:
   clusterIP: None
   selector: 
     app: dov
-    dept: eng
-    commit: abc123
   ports: 
   - port: 8080
     targetPort: app-port
