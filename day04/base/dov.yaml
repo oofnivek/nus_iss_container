@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: dov-deploy
-  namespace: dovns
+  namespace: dov-ns
   labels:
     app: dov
     name: dov-deploy
@@ -11,20 +11,16 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: myapp
-      dept: eng
-      commit: abc123
+      app: dov
   template:
     metadata:
-      name: mypod
-      namespace: dovns
+      name: dov-po
+      namespace: dov-ns
       labels:
-        app: myapp
-        dept: eng
-        commit: abc123
+        app: dov
     spec:
       containers:
-      - name: mypod-dancing-bear
+      - name: dov-container
         image: chukmunnlee/dov-bear:v5
         imagePullPolicy: IfNotPresent
         ports:
@@ -33,10 +29,10 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 256Mi
+            memory: 128Mi
           limits:
             cpu: 100m
-            memory: 256Mi
+            memory: 128Mi
         env:
         - name: INSTANCE_NAME
           valueFrom:
@@ -52,16 +48,14 @@ apiVersion: v1
 kind: Service
 metadata: 
   name: dov-svc
-  namespace: dovns
+  namespace: dov-ns
   labels:
     app: dov
     name: dov-svc
 spec:
   type: ClusterIP
   selector: 
-    app: myapp
-    dept: eng
-    commit: abc123
+    app: dov
   ports: 
   - port: 8000
     targetPort: app-port
