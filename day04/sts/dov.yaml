@@ -2,15 +2,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  # Unique key of the Deployment instance
   name: dov-deploy
   namespace: dovns
   labels:
     app: dov
     name: dov-deploy
 spec:
-  # 3 Pods should exist at all times.
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: myapp
@@ -68,28 +66,69 @@ spec:
   - port: 8000
     targetPort: app-port
 
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: dov-hpa
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: dov-hsvc
+  namespace: dovns
+  labels:
+    app: dov
+    name: dov-hsvc
+spec:
+  clusterIP: None
+  selector: 
+    app: myapp
+    dept: eng
+    commit: abc123
+  ports: 
+  - port: 8000
+    targetPort: app-port
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+  name: dov-sts
   namespace: dovns
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: dov-deployment
-  minReplicas: 1
-  maxReplicas: 8
-  metrics:
-  - type: Resource
-    resource:
-      name: memory
-      target: 
-        type: Utilization
-        averageUtilization: 50
-  - type: Resource
-    resource:
-      name: cpu
-      target: 
-        type: Utilization
-        averageUtilization: 50
+  replicas: 3
+  serviceName: dov-hsvc
+  selector:
+    matchLabels:
+      app: myapp
+      dept: eng
+      commit: abc123
+  template:
+    metadata:
+      name: mypod
+      namespace: dovns
+      labels:
+        app: myapp
+        dept: eng
+        commit: abc123
+    spec:
+      containers:
+      - name: mypod-dancing-bear
+        image: chukmunnlee/dov-bear:v5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: app-port
+          containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 100m
+            memory: 256Mi
+        env:
+        - name: INSTANCE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INSTANCE_HASH
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['pod-template-hash']
+              

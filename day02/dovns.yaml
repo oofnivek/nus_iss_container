@@ -1,0 +1,29 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dovns
+
+# ---
+# # pod
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: mypod
+#   namespace: dovns
+#   labels:
+#     app: myapp
+#     dept: end
+#     commit: abc123
+# spec:
+#   containers:
+#   - name: mypod-dancing-bear
+#     image: chukmunnlee/dov-bear:v5
+#     imagePullPolicy: IfNotPresent
+#     ports:
+#     - containerPort: 3000
+#     env:
+#     - name: INSTANCE_NAME
+#       value: my first pod
+#     - name: INSTANCE_HASH
+#       value: abc123
